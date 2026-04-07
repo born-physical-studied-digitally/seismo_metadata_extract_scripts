@@ -1,0 +1,51 @@
+name: dogtag_extractor
+version: 1.0.0
+description: Extract dogtag from seismograms.
+
+author:
+  name: Brian Kim
+  organization: Amaral Lab
+
+entrypoint:
+  type: container
+  command: python run.py
+
+inputs:
+  - name: image
+    type: file
+    format: [png, jpg, jpeg, tif, tiff, bmp, webp]
+
+  - name: metadata
+    type: json
+    required: false
+
+outputs:
+  - name: extracted_metadata
+    type: json
+    schema: dublin_core_application_profile
+
+  - name: extracted_dogtag
+    type: file[]
+    format: png
+
+parameters:
+  - name: confidence_threshold
+    type: float
+    default: 0.5
+
+  - name: model_path
+    type: string
+    default: ./best.pt
+
+  - name: output_dir
+    type: string
+    default: ./outputs
+
+resources:
+  cpu: "2"
+  memory: "4Gi"
+  gpu: false
+
+execution:
+  timeout_seconds: 600
+  retry_policy: 1
