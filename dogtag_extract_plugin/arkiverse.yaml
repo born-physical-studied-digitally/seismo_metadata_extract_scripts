@@ -35,7 +35,7 @@ parameters:
 
   - name: model_path
     type: string
-    default: ./best.pt
+    default: ./models/best.pt
 
   - name: output_dir
     type: string

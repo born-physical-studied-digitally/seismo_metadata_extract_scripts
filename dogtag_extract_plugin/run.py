@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict
 
+
 from src.extract_dogtag import extract_dogtags
 
 
@@ -45,7 +46,7 @@ def run_plugin(payload: Dict[str, Any], model_path_override: str | None, output_
     job_id = payload.get("job_id")
     params = payload.get("parameters", {})
     confidence_threshold = float(params.get("confidence_threshold", 0.5))
-    model_path = model_path_override or str(params.get("model_path", "./best.pt"))
+    model_path = model_path_override or str(params.get("model_path", "./models/best.pt"))
     output_dir = Path(output_dir_override or str(params.get("output_dir", "./outputs")))
 
     image_path = _resolve_image_input(payload)
