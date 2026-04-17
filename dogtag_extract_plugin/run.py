@@ -86,14 +86,14 @@ def run_plugin(payload: Dict[str, Any], model_path_override: str | None, output_
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run dogtag extraction plugin with JSON input/output.")
-    parser.add_argument("--input-json", default="input.json", help="Path to plugin input JSON payload")
-    parser.add_argument("--output-json", default="output.json", help="Path to write plugin output JSON payload")
+    parser.add_argument("--input", default="input.json", help="Path to plugin input JSON payload")
+    parser.add_argument("--output", default="output.json", help="Path to write plugin output JSON payload")
     parser.add_argument("--model-path", default=None, help="Optional override for YOLO model path")
     parser.add_argument("--output-dir", default=None, help="Optional override output directory for crops")
     args = parser.parse_args()
 
-    input_json = Path(args.input_json)
-    output_json = Path(args.output_json)
+    input_json = Path(args.input)
+    output_json = Path(args.output)
 
     payload: Dict[str, Any] = {}
     try:
