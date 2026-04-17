@@ -79,7 +79,7 @@ def extract_dogtags_from_image(
 def extract_dogtags(
     input_path: str | Path,
     output_dir: str | Path,
-    model_path: str | Path = "best.pt",
+    model_path: str | Path = "../models/best.pt",
     conf_threshold: float = 0.5,
 ) -> Tuple[List[str], List[str], List[str]]:
     input_path = Path(input_path)
