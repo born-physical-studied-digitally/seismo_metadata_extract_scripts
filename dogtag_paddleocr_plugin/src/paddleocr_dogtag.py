@@ -29,8 +29,8 @@ def _preprocess(image_path: Path) -> np.ndarray:
     return img
 
 
-def _detect(image: np.ndarray, lang: str) -> list:
-    result = PaddleOCR(use_textline_orientation=True, lang=lang).predict(image)
+def _detect(image: np.ndarray, ocr: PaddleOCR) -> list:
+    result = ocr.predict(image)
     if not result or not result[0]:
         return []
 
@@ -69,6 +69,12 @@ def run_ocr(input_path, output_dir, lang="en", preprocess=True) -> tuple[dict, l
     else:
         raise FileNotFoundError(f"Input path does not exist: {input_path}")
 
+    ocr = PaddleOCR(
+        use_textline_orientation=True,
+        lang=lang,
+        enable_mkldnn=True,
+    )
+
     results = []
     saved_text_paths = []
     for image_path in image_paths:
@@ -76,7 +82,7 @@ def run_ocr(input_path, output_dir, lang="en", preprocess=True) -> tuple[dict, l
         if image is None:
             raise ValueError(f"Could not read image: {image_path}")
 
-        detections = _detect(image, lang)
+        detections = _detect(image, ocr)
         saved_text_paths.append(_write_extracted_text(image_path, detections, output_dir))
         results.append({
             "image": str(image_path),

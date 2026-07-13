@@ -1,5 +1,6 @@
 numpy
 opencv-python-headless
 Pillow
-paddleocr>=3.0.0
-paddlepaddle
+paddleocr==3.7.0
+paddlex==3.7.2
+paddlepaddle==3.2.2

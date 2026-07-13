@@ -1,6 +1,7 @@
 import argparse
 import json
 import time
+import traceback
 from pathlib import Path
 from src.paddleocr_dogtag import run_ocr
 
@@ -67,11 +68,11 @@ def main() -> None:
     try:
         payload = json.loads(Path(args.input).read_text(encoding="utf-8"))
         result = run_plugin(payload=payload, output_dir_override=args.output_dir)
-    except Exception as exc:
+    except Exception:
         result = {
             "status": "failed",
             "outputs": {"extracted_metadata": {}, "ocr_text_locations": {}, "extracted_text": []},
-            "logs": str(exc),
+            "logs": traceback.format_exc(),
             "metrics": {"runtime_seconds": 0.0},
         }
         if job_id := payload.get("job_id"):
