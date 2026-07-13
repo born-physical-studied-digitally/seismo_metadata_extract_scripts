@@ -48,7 +48,16 @@ def _detect(image: np.ndarray, lang: str) -> list:
     return boxes
 
 
-def run_ocr(input_path, output_dir, lang="en", preprocess=True) -> dict:
+def _write_extracted_text(image_path: Path, detections: list, output_dir: Path) -> Path:
+    output_path = output_dir / f"{image_path.stem}.txt"
+    text = "\n".join(detection["text"] for detection in detections)
+    if text:
+        text += "\n"
+    output_path.write_text(text, encoding="utf-8")
+    return output_path
+
+
+def run_ocr(input_path, output_dir, lang="en", preprocess=True) -> tuple[dict, list[Path]]:
     input_path = Path(input_path)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -61,14 +70,17 @@ def run_ocr(input_path, output_dir, lang="en", preprocess=True) -> dict:
         raise FileNotFoundError(f"Input path does not exist: {input_path}")
 
     results = []
+    saved_text_paths = []
     for image_path in image_paths:
         image = _preprocess(image_path) if preprocess else cv2.imread(str(image_path))
         if image is None:
             raise ValueError(f"Could not read image: {image_path}")
 
+        detections = _detect(image, lang)
+        saved_text_paths.append(_write_extracted_text(image_path, detections, output_dir))
         results.append({
             "image": str(image_path),
-            "detections": _detect(image, lang),
+            "detections": detections,
         })
 
-    return {"images": results}
+    return {"images": results}, saved_text_paths

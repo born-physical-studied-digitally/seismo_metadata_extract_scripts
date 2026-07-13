@@ -24,18 +24,20 @@ def run_plugin(payload: dict, output_dir_override: str | None) -> dict:
     if image_input is None:
         raise ValueError("Missing required input: inputs.image")
 
-    ocr_result = run_ocr(
+    ocr_result, saved_text_paths = run_ocr(
         input_path=_resolve_image(image_input),
         output_dir=Path(output_dir_override or params.get("output_dir", "./outputs")),
         lang=str(params.get("lang", "en")),
         preprocess=bool(params.get("preprocess", True)),
     )
+    extracted_text = [{"uri": f"file://{path.resolve()}"} for path in sorted(saved_text_paths)]
 
     input_metadata = payload.get("inputs", {}).get("metadata") or {}
     extracted_metadata = {
         **input_metadata,
         "num_images_processed": len(ocr_result["images"]),
         "num_text_detections": sum(len(img["detections"]) for img in ocr_result["images"]),
+        "num_text_files": len(saved_text_paths),
     }
 
     result = {
@@ -43,6 +45,7 @@ def run_plugin(payload: dict, output_dir_override: str | None) -> dict:
         "outputs": {
             "extracted_metadata": extracted_metadata,
             "ocr_text_locations": ocr_result,
+            "extracted_text": extracted_text,
         },
         "logs": "",
         "metrics": {"runtime_seconds": round(time.perf_counter() - started, 4)},
@@ -56,7 +59,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", default="input.json")
     parser.add_argument("--output", default="output.json")
-    parser.add_argument("--output-dir", default=None)
+    parser.add_argument("--output-dir", default=None, help="Optional override output directory for extracted text")
     args = parser.parse_args()
 
     output_json = Path(args.output)
@@ -67,7 +70,7 @@ def main() -> None:
     except Exception as exc:
         result = {
             "status": "failed",
-            "outputs": {"extracted_metadata": {}, "ocr_text_locations": {}},
+            "outputs": {"extracted_metadata": {}, "ocr_text_locations": {}, "extracted_text": []},
             "logs": str(exc),
             "metrics": {"runtime_seconds": 0.0},
         }
